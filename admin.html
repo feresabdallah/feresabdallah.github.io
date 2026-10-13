@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f3f2ed">
+  <title>Administration — Feres Abdallah</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <header class="admin-top"><a href="index.html" class="wordmark">F<span>.</span> <small>ESPACE ADMIN</small></a><a href="index.html">Voir le site ↗</a></header>
+  <main class="admin-shell">
+    <section class="login-card" id="login-panel">
+      <p class="eyebrow">FERES ABDALLAH · TUNIS</p>
+      <h1>Votre espace<br><em>d’administration.</em></h1>
+      <p>Connectez-vous pour mettre à jour vos textes et vos projets.</p>
+      <form id="login-form">
+        <label>Adresse e-mail<input type="email" id="email" autocomplete="username" required value="feresabdallah.design@gmail.com"></label>
+        <label>Mot de passe<input type="password" id="password" autocomplete="current-password" required></label>
+        <button class="button" type="submit">Se connecter <span>↗</span></button>
+        <p class="form-message" id="login-message" role="status"></p>
+      </form>
+    </section>
+
+    <section class="editor" id="editor-panel" hidden>
+      <div class="editor-heading"><div><p class="eyebrow">ESPACE PRIVÉ</p><h1>Modifier le site.</h1></div><button class="button button-quiet" id="logout-button" type="button">Déconnexion</button></div>
+      <p class="notice">Les changements sont enregistrés sur le site après avoir cliqué sur « Publier les changements ».</p>
+      <form id="content-form">
+        <section class="edit-section"><h2>Accueil & approche</h2>
+          <label>Titre principal<textarea id="heroTitle" rows="2" required></textarea></label>
+          <label>Texte d’accueil<textarea id="heroIntro" rows="3" required></textarea></label>
+          <label>Titre de l’approche<textarea id="approachTitle" rows="2" required></textarea></label>
+          <label>Texte de l’approche<textarea id="approachText" rows="3" required></textarea></label>
+        </section>
+        <section class="edit-section"><h2>Projets</h2><p class="section-help">Tu peux remplacer les images de concept par tes photos. JPG, PNG ou WebP, maximum 10 Mo par photo.</p>
+          <div id="project-editors"></div>
+        </section>
+        <div class="save-row"><p class="form-message" id="save-message" role="status"></p><button class="button" type="submit">Publier les changements <span>↗</span></button></div>
+      </form>
+    </section>
+    <p class="setup-hint" id="setup-hint" hidden>Le panneau attend encore la configuration Supabase. Suis les étapes d’installation fournies avec le site.</p>
+  </main>
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
