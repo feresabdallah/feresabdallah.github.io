@@ -46,7 +46,7 @@ if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_') && 
       if (!element) return;
       const small = element.querySelector('small');
       element.firstChild.nodeValue = `${content.brandName || 'Feres Abdallah'} `;
-      if (small) small.textContent = content.brandTagline || '';
+      if (small) small.textContent = content.brandTagline?.trim() || 'ARCHITECTURE INTÉRIEURE · TUNIS';
     };
 
     document.title = content.metaTitle || document.title;
@@ -57,7 +57,7 @@ if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_') && 
     const navLinks = [...document.querySelectorAll('.main-nav>a')];
     [visibility.projects,visibility.approach,visibility.journal,visibility.contact].forEach((visible,index) => { if (navLinks[index]) navLinks[index].hidden = visible === false; });
     [content.navProjects,content.navApproach,content.navJournal].forEach((value,index) => { if (navLinks[index] && value) navLinks[index].textContent = value; });
-    if (navLinks[3]) navLinks[3].firstChild.nodeValue = `${content.navContact || ''} `;
+    if (navLinks[3]) navLinks[3].firstChild.nodeValue = `${content.navContact?.trim() || 'Parlons de votre projet'} `;
 
     const heroEyebrow = document.querySelector('.hero-copy .eyebrow');
     if (heroEyebrow && content.heroEyebrow) {
@@ -88,7 +88,7 @@ if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_') && 
     setRich('#approche h2',content.approachTitle);
     setText('.intro-text',content.approachText);
     const approachLink = document.querySelector('#approche .text-link');
-    if (approachLink) approachLink.firstChild.nodeValue = `${content.approachLink || ''} `;
+    if (approachLink) approachLink.firstChild.nodeValue = `${content.approachLink?.trim() || 'En savoir plus sur ma démarche'} `;
 
     setText('.projects .section-heading .eyebrow',content.projectsEyebrow);
     setRich('.projects .section-heading h2',content.projectsTitle);
@@ -139,7 +139,7 @@ if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_') && 
     setText('.journal-head .eyebrow',content.journalEyebrow);
     setRich('.journal-head h2',content.journalTitle);
     const journalLink = document.querySelector('.journal-head .text-link');
-    if (journalLink) journalLink.firstChild.nodeValue = `${content.journalLink || ''} `;
+    if (journalLink) journalLink.firstChild.nodeValue = `${content.journalLink?.trim() || 'Suivre les coulisses sur Instagram'} `;
     if (content.instagram) journalLink?.setAttribute('href',content.instagram);
     const journalGrid = document.querySelector('.journal-grid');
     const visibleJournal = (content.journal || []).filter(entry => entry.visible !== false);
@@ -160,7 +160,7 @@ if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_') && 
     setRich('.contact-section h2',content.contactTitle);
     setText('.contact-grid>div:first-child>p:not(.eyebrow)',content.contactText);
     const contactButton = document.querySelector('.contact-section .button');
-    if (contactButton) contactButton.firstChild.nodeValue = `${content.contactButton || ''} `;
+    if (contactButton) contactButton.firstChild.nodeValue = `${content.contactButton?.trim() || 'Écrire à Feres'} `;
     if (content.email) {
       document.querySelectorAll('.contact-side a[href^="mailto:"]').forEach(link => { link.href = `mailto:${content.email}`; if (link.textContent.includes('@')) link.textContent = `${content.email} ↗`; });
       if (contactButton) contactButton.href = `mailto:${content.email}?subject=Parlons%20de%20mon%20projet`;
