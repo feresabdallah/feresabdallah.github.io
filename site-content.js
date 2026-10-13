@@ -1,6 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
 
+const SEASONS = {
+  olive: ['#b5a323', '#807313'], terracotta: ['#a95d43', '#7e3e2d'],
+  blue: ['#547984', '#3b5961'], sage: ['#71805d', '#536044']
+};
+
 if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_') && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes('COLLER_')) {
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const { data } = await supabase.from('portfolio_content').select('content').eq('id', 'main').maybeSingle();
@@ -12,6 +17,20 @@ if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_') && 
   };
   const content = restoreLineBreaks(data?.content);
   if (content) {
+    const visibility = {
+      hero: true, approach: true, projects: true, manifesto: true,
+      services: true, journal: true, contact: true, footer: true,
+      ...(content.visibility || {})
+    };
+    const setVisible = (key, selector) => document.querySelectorAll(selector).forEach(node => { node.hidden = visibility[key] === false; });
+    setVisible('hero', '#accueil');
+    setVisible('approach', '#approche');
+    setVisible('projects', '.projects');
+    setVisible('manifesto', '.manifesto');
+    setVisible('services', '.services');
+    setVisible('journal', '.journal');
+    setVisible('contact', '.contact-section');
+    setVisible('footer', '.site-footer');
     const setText = (selector, text) => { const node = document.querySelector(selector); if (node && text != null) node.textContent = text; };
     const setIn = (parent, selector, text) => { const node = parent?.querySelector(selector); if (node && text != null) node.textContent = text; };
     const setRich = (selector, text) => {
@@ -36,6 +55,7 @@ if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_') && 
     document.querySelectorAll('.brand-name').forEach(setBrand);
     document.querySelectorAll('.brand-mark').forEach(mark => { mark.firstChild.nodeValue = (content.brandName || 'F').trim().charAt(0); });
     const navLinks = [...document.querySelectorAll('.main-nav>a')];
+    [visibility.projects,visibility.approach,visibility.journal,visibility.contact].forEach((visible,index) => { if (navLinks[index]) navLinks[index].hidden = visible === false; });
     [content.navProjects,content.navApproach,content.navJournal].forEach((value,index) => { if (navLinks[index] && value) navLinks[index].textContent = value; });
     if (navLinks[3]) navLinks[3].firstChild.nodeValue = `${content.navContact || ''} `;
 
@@ -76,13 +96,14 @@ if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_') && 
     const filterLabels = document.querySelectorAll('.filter-button');
     [content.filterAll,content.filterHabitat,content.filterResearch].forEach((value,index) => { if (filterLabels[index] && value) filterLabels[index].textContent = value; });
     const projectGrid = document.querySelector('.project-grid');
+    const visibleProjects = (content.projects || []).filter(project => project.visible !== false);
     let projectCards = [...document.querySelectorAll('.project-card')];
-    while (projectCards.length < (content.projects || []).length) {
+    while (projectCards.length < visibleProjects.length) {
       const clone = projectCards[0].cloneNode(true); clone.className = 'project-card'; projectGrid.append(clone); projectCards.push(clone);
     }
-    while (projectCards.length > (content.projects || []).length) projectCards.pop().remove();
+    while (projectCards.length > visibleProjects.length) projectCards.pop().remove();
     projectCards.forEach((card,index) => {
-      const project = content.projects?.[index]; if (!project) return;
+      const project = visibleProjects[index]; if (!project) return;
       card.dataset.category = project.category || 'habitat';
       setIn(card,'h3',project.title); setIn(card,'.project-type',project.type);
       setIn(card,'.visual-caption',project.location); setIn(card,'.project-description',project.description);
@@ -106,11 +127,12 @@ if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_') && 
     setRich('.services-title h2',content.servicesTitle);
     setText('.services-title>p:last-child',content.servicesIntro);
     const serviceList = document.querySelector('.service-list');
+    const visibleServices = (content.services || []).filter(service => service.visible !== false);
     let serviceCards = [...serviceList.querySelectorAll('article')];
-    while (serviceCards.length < (content.services || []).length) { const clone = serviceCards[serviceCards.length-1].cloneNode(true); serviceList.append(clone); serviceCards.push(clone); }
-    while (serviceCards.length > (content.services || []).length) serviceCards.pop().remove();
+    while (serviceCards.length < visibleServices.length) { const clone = serviceCards[serviceCards.length-1].cloneNode(true); serviceList.append(clone); serviceCards.push(clone); }
+    while (serviceCards.length > visibleServices.length) serviceCards.pop().remove();
     serviceCards.forEach((article,index) => {
-      const service = content.services?.[index]; if (!service) return;
+      const service = visibleServices[index]; if (!service) return;
       setIn(article,'h3',service.title); setIn(article,'p',service.description); setIn(article,'span',String(index+1).padStart(2,'0'));
     });
 
@@ -120,11 +142,12 @@ if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_') && 
     if (journalLink) journalLink.firstChild.nodeValue = `${content.journalLink || ''} `;
     if (content.instagram) journalLink?.setAttribute('href',content.instagram);
     const journalGrid = document.querySelector('.journal-grid');
+    const visibleJournal = (content.journal || []).filter(entry => entry.visible !== false);
     let journalCards = [...journalGrid.querySelectorAll('.journal-card')];
-    while (journalCards.length < (content.journal || []).length) { const clone = journalCards[journalCards.length-1].cloneNode(true); clone.classList.remove('journal-card-low'); journalGrid.append(clone); journalCards.push(clone); }
-    while (journalCards.length > (content.journal || []).length) journalCards.pop().remove();
+    while (journalCards.length < visibleJournal.length) { const clone = journalCards[journalCards.length-1].cloneNode(true); clone.classList.remove('journal-card-low'); journalGrid.append(clone); journalCards.push(clone); }
+    while (journalCards.length > visibleJournal.length) journalCards.pop().remove();
     journalCards.forEach((card,index) => {
-      const entry = content.journal?.[index]; if (!entry) return;
+      const entry = visibleJournal[index]; if (!entry) return;
       setIn(card,'.journal-art>span',entry.tag); setIn(card,'p',entry.title); setIn(card,'small',entry.meta);
       if (entry.image) {
         const art = card.querySelector('.journal-art'); art.replaceChildren();

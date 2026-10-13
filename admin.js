@@ -43,7 +43,8 @@ const DEFAULT_CONTENT = {
   contactText: 'Racontez-moi votre espace, vos envies et vos contraintes. Je vous répondrai pour convenir d’un premier échange.',
   contactButton: 'Écrire à Feres', city: 'Basé à Tunis', availability: 'Disponible en Tunisie et à distance',
   email: 'feresabdallah.design@gmail.com', phoneLabel: 'Téléphone', phone: '+216 55 128 645',
-  instagram: 'https://www.instagram.com/feres_abdallah_design/', season: 'olive'
+  instagram: 'https://www.instagram.com/feres_abdallah_design/', season: 'olive',
+  visibility: { hero: true, approach: true, projects: true, manifesto: true, services: true, journal: true, contact: true, footer: true }
 };
 
 const GROUPS = [
@@ -147,6 +148,24 @@ if (!isConfigured) {
       if (group.image) details.append(buildImageControl(group.image[0], group.image[1], content[group.image[0]] || ''));
       editableFields.append(details);
     });
+    const visibilityDetails = document.createElement('details');
+    visibilityDetails.className = 'edit-section';
+    const visibilitySummary = document.createElement('summary');
+    visibilitySummary.textContent = 'Éléments visibles';
+    visibilityDetails.append(visibilitySummary);
+    const visibilityGrid = document.createElement('div');
+    visibilityGrid.className = 'visibility-grid';
+    [
+      ['hero','Accueil'], ['approach','Approche'], ['projects','Projets'], ['manifesto','Manifeste'],
+      ['services','Services'], ['journal','Journal'], ['contact','Contact'], ['footer','Pied de page']
+    ].forEach(([key,label]) => {
+      const wrapper = document.createElement('label');
+      const input = document.createElement('input');
+      input.type = 'checkbox'; input.dataset.visibilityKey = key;
+      wrapper.append(input, document.createTextNode(label)); visibilityGrid.append(wrapper);
+    });
+    visibilityDetails.append(visibilityGrid);
+    editableFields.append(visibilityDetails);
     const seasonDetails = document.createElement('details');
     seasonDetails.className = 'edit-section';
     const summary = document.createElement('summary');
@@ -199,7 +218,7 @@ if (!isConfigured) {
   function syncCardDraft(target, kind) {
     content[kind] = [...target.querySelectorAll('.item-editor')].map((card,index) => {
       const item = {...(content[kind][index] || {})};
-      card.querySelectorAll('[data-field]').forEach(input => { item[input.dataset.field] = input.value.trim(); });
+      card.querySelectorAll('[data-field]').forEach(input => { item[input.dataset.field] = input.type === 'checkbox' ? input.checked : input.value.trim(); });
       const image = card.querySelector('.image-control'); if (image) item.image = image.dataset.imageUrl || '';
       return item;
     });
@@ -229,6 +248,12 @@ if (!isConfigured) {
         select.value = item.category || 'habitat'; wrapper.append(select); grid.append(wrapper);
       }
       card.append(grid);
+      const visibilityLabel = document.createElement('label');
+      visibilityLabel.className = 'item-visibility';
+      const visibilityInput = document.createElement('input');
+      visibilityInput.type = 'checkbox'; visibilityInput.dataset.field = 'visible'; visibilityInput.checked = item.visible !== false;
+      visibilityLabel.append(visibilityInput, document.createTextNode('Afficher sur le site'));
+      card.append(visibilityLabel);
       if (kind !== 'services') card.append(buildImageControl(`item-image-${kind}-${index}`, kind === 'projects' ? 'Photo du projet' : 'Photo du journal', item.image || ''));
       const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'remove-item'; remove.textContent = 'Retirer cet élément';
       remove.addEventListener('click', () => {
@@ -252,13 +277,28 @@ if (!isConfigured) {
 
   async function loadContent() {
     message(saveMessage, 'Chargement…');
-    const { data, error } = await supabase.from('portfolio_content').select('content').eq('id', 'main').single();
+    let result;
+    try {
+      result = await Promise.race([
+        supabase.from('portfolio_content').select('content').eq('id', 'main').single(),
+        new Promise((_, reject) => window.setTimeout(() => reject(new Error('Le serveur ne répond pas. Vérifie la connexion au projet Supabase et réessaie.')), 12000))
+      ]);
+    } catch (error) {
+      message(saveMessage, `Impossible de charger le contenu : ${error.message}`, true);
+      return;
+    }
+    const { data, error } = result;
     if (error) { message(saveMessage, `Impossible de charger le contenu : ${error.message}`, true); return; }
-    const stored = restoreLineBreaks(data.content);
+    const stored = restoreLineBreaks(data.content) || {};
     content = { ...DEFAULT_CONTENT, ...stored };
+    content.visibility = { ...DEFAULT_CONTENT.visibility, ...(stored.visibility || {}) };
     ['projects','services','journal'].forEach(key => { content[key] = DEFAULT_CONTENT[key].map((item,index) => ({...item,...(stored[key]?.[index] || {})})); });
     renderGroups();
-    editableFields.querySelectorAll('[data-key]').forEach(input => input.value = content[input.dataset.key] || '');
+    editableFields.querySelectorAll('[data-key]').forEach(input => {
+      if (input.type === 'checkbox') input.checked = Boolean(content[input.dataset.key]);
+      else input.value = content[input.dataset.key] || '';
+    });
+    editableFields.querySelectorAll('[data-visibility-key]').forEach(input => input.checked = content.visibility[input.dataset.visibilityKey] !== false);
     renderCards(projectEditors, content.projects, 'projects');
     renderCards(serviceEditors, content.services, 'services');
     renderCards(journalEditors, content.journal, 'journal');
@@ -290,10 +330,12 @@ if (!isConfigured) {
     event.preventDefault(); message(saveMessage, 'Publication…');
     const updated = { ...content };
     editableFields.querySelectorAll('[data-key]').forEach(input => { updated[input.dataset.key] = input.value.trim(); });
+    updated.visibility = { ...content.visibility };
+    editableFields.querySelectorAll('[data-visibility-key]').forEach(input => { updated.visibility[input.dataset.visibilityKey] = input.checked; });
     editableFields.querySelectorAll('.image-control').forEach(row => { updated[row.dataset.imageKey] = row.dataset.imageUrl || ''; });
     const collect = (target, kind, source) => [...target.querySelectorAll('.item-editor')].map((card,index) => {
       const item = {...(source[index] || {})};
-      card.querySelectorAll('[data-field]').forEach(input => { item[input.dataset.field] = input.value.trim(); });
+      card.querySelectorAll('[data-field]').forEach(input => { item[input.dataset.field] = input.type === 'checkbox' ? input.checked : input.value.trim(); });
       const image = card.querySelector('.image-control'); if (image) item.image = image.dataset.imageUrl || '';
       return item;
     });
