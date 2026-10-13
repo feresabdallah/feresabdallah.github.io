@@ -28,17 +28,12 @@
 
     <section class="editor" id="editor-panel" hidden>
       <div class="editor-heading"><div><p class="eyebrow">ESPACE PRIVÉ</p><h1>Modifier le site.</h1></div><button class="button button-quiet" id="logout-button" type="button">Déconnexion</button></div>
-      <p class="notice">Les changements sont enregistrés sur le site après avoir cliqué sur « Publier les changements ».</p>
+      <p class="notice">Modifie les rubriques ci-dessous. Les photos sont envoyées dès leur sélection ; les textes et réglages sont publiés quand tu cliques sur le bouton en bas.</p>
       <form id="content-form">
-        <section class="edit-section"><h2>Accueil & approche</h2>
-          <label>Titre principal<textarea id="heroTitle" rows="2" required></textarea></label>
-          <label>Texte d’accueil<textarea id="heroIntro" rows="3" required></textarea></label>
-          <label>Titre de l’approche<textarea id="approachTitle" rows="2" required></textarea></label>
-          <label>Texte de l’approche<textarea id="approachText" rows="3" required></textarea></label>
-        </section>
-        <section class="edit-section"><h2>Projets</h2><p class="section-help">Tu peux remplacer les images de concept par tes photos. JPG, PNG ou WebP, maximum 10 Mo par photo.</p>
-          <div id="project-editors"></div>
-        </section>
+        <div id="editable-fields"></div>
+        <section class="edit-section item-section"><h2>Projets</h2><p class="section-help">Modifie les fiches et ajoute tes photos de projets. JPG, PNG ou WebP, 10 Mo maximum.</p><div id="project-editors"></div></section>
+        <section class="edit-section item-section"><h2>Services</h2><p class="section-help">Modifie les prestations affichées sur la page d’accueil.</p><div id="service-editors"></div></section>
+        <section class="edit-section item-section"><h2>Journal & publications</h2><p class="section-help">Modifie les trois cartes du journal et ajoute une photo à chacune si tu le souhaites.</p><div id="journal-editors"></div></section>
         <div class="save-row"><p class="form-message" id="save-message" role="status"></p><button class="button" type="submit">Publier les changements <span>↗</span></button></div>
       </form>
     </section>
