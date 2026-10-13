@@ -1453,7 +1453,7 @@ h1,h2,h3,p {
     column-gap: 18px;
   }
   .contact-stamp {
-    grid-row: span 3;
+    grid-row: span 4;
     margin: 0;
   }
   .contact-side p {
