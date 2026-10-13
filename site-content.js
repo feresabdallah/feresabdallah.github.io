@@ -81,8 +81,8 @@ if (SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_') && 
       heroArt.setAttribute('aria-label',`Photographie de couverture : ${content.heroCaptionTitle || 'projet intérieur'}`);
     }
     const heroActions = document.querySelectorAll('.hero-actions a');
-    if (heroActions[0]) { heroActions[0].firstChild.nodeValue = `${content.ctaProjects || ''} `; }
-    if (heroActions[1]) { heroActions[1].firstChild.nodeValue = `${content.ctaApproach || ''} `; }
+    if (heroActions[0]) { heroActions[0].firstChild.nodeValue = `${content.ctaProjects?.trim() || 'Découvrir les projets'} `; }
+    if (heroActions[1]) { heroActions[1].firstChild.nodeValue = `${content.ctaApproach?.trim() || 'Mon approche'} `; }
 
     setText('#approche .eyebrow',content.visionLabel);
     setRich('#approche h2',content.approachTitle);
